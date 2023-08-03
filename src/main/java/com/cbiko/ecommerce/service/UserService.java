@@ -9,6 +9,7 @@ import com.cbiko.ecommerce.exceptions.AuthenticationFailException;
 import com.cbiko.ecommerce.exceptions.CustomException;
 import com.cbiko.ecommerce.model.AuthenticationToken;
 import com.cbiko.ecommerce.model.User;
+import com.cbiko.ecommerce.repository.TokenRepository;
 import com.cbiko.ecommerce.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,11 @@ public class UserService {
     @Autowired
     AuthenticationService authenticationService;
 
+    @Autowired
+    EmailService emailService;
+
+    @Autowired
+    TokenRepository tokenRepository;
 
     Logger logger = LoggerFactory.getLogger(UserService.class);
 
@@ -51,6 +57,7 @@ public class UserService {
         try {
             // save the User
             userRepository.save(user);
+
             // generate token for user
             final AuthenticationToken authenticationToken = new AuthenticationToken(user);
             // save token in database
@@ -99,4 +106,9 @@ public class UserService {
 
         return new SignInResponseDto ("success", token.getToken());
     }
+
+
+
+
+
 }

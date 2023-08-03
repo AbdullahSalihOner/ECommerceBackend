@@ -55,6 +55,10 @@
 			<version>2.9.2</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
 
 
 		<dependency>
@@ -73,6 +77,8 @@
 			<artifactId>mysql-connector-java</artifactId>
 			<version>8.0.25</version>
 		</dependency>
+
+
 
 
 		<!--        <dependency>-->

@@ -41,6 +41,14 @@ public class Cart {
         this.createdDate = new Date();
     }
 
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
     public Date getCreatedDate() {
         return createdDate;
     }
