@@ -14,6 +14,8 @@ import com.cbiko.ecommerce.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
 
 import javax.xml.bind.DatatypeConverter;
@@ -34,40 +36,52 @@ public class UserService {
     EmailService emailService;
 
     @Autowired
-    TokenRepository tokenRepository;
+    TokenRepository comfirmationTokenRepository;
 
     Logger logger = LoggerFactory.getLogger(UserService.class);
 
-    public SignUpResponseDto signUp(SignupDto signupDto)  throws CustomException {
+    public ResponseEntity<?> signUp(User user)  throws CustomException {
         // Check to see if the current email address has already been registered.
-        if (Objects.nonNull(userRepository.findByEmail(signupDto.getEmail()))) {
+        if (Objects.nonNull(userRepository.findByEmail(user.getEmail()))) {
             // If the email address has been registered then throw an exception.
             throw new CustomException("User already exists");
         }
         // first encrypt the password
-        String encryptedPassword = signupDto.getPassword();
+        String encryptedPassword = user.getPassword();
         try {
-            encryptedPassword = hashPassword(signupDto.getPassword());
+            encryptedPassword = hashPassword(user.getPassword());
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             logger.error("hashing password failed {}", e.getMessage());
         }
 
-        User user = new User(signupDto.getFirstName(), signupDto.getLastName(), signupDto.getEmail(), encryptedPassword );
-        try {
+        User currentUser = new User(user.getFirstName(), user.getLastName(), user.getEmail(), encryptedPassword );
+
             // save the User
-            userRepository.save(user);
+            userRepository.save(currentUser);
+
+            ///////////////////////////
+            AuthenticationToken authToken = new AuthenticationToken(currentUser);
+            comfirmationTokenRepository.save(authToken);
+
+            SimpleMailMessage mailMessage = new SimpleMailMessage();
+            mailMessage.setTo(user.getEmail());
+            mailMessage.setSubject("Complete Registration!");
+            mailMessage.setText("To confirm your account, please click here : "
+                    +"http://localhost:8080/confirm-account?token="+authToken.getToken());
+            emailService.sendEmail(mailMessage);
+
+            System.out.println("Confirmation Token: " + authToken.getToken());
+
+            return ResponseEntity.ok("Verify email by the link sent on your email address");
+
 
             // generate token for user
-            final AuthenticationToken authenticationToken = new AuthenticationToken(user);
-            // save token in database
-            authenticationService.saveConfirmationToken(authenticationToken);
+
+
             // success in creating
-            return new SignUpResponseDto("success", "user created successfully");
-        } catch (Exception e) {
-            // handle signup error
-            throw new CustomException(e.getMessage());
-        }
+            //return new SignUpResponseDto("success", "user created successfully");
+
     }
 
     String hashPassword(String password) throws NoSuchAlgorithmException {
@@ -105,6 +119,19 @@ public class UserService {
         }
 
         return new SignInResponseDto ("success", token.getToken());
+    }
+
+
+    public ResponseEntity<?> confirmEmail(String confirmationToken) {
+        AuthenticationToken token = comfirmationTokenRepository.findTokenByToken(confirmationToken);
+
+        if(token != null)
+        {
+            User user = userRepository.findByEmail(token.getUser().getEmail());
+            userRepository.save(user);
+            return ResponseEntity.ok("Email verified successfully!");
+        }
+        return ResponseEntity.badRequest().body("Error: Couldn't verify email");
     }
 
 
