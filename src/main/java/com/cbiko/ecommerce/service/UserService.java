@@ -60,7 +60,8 @@ public class UserService {
             // save the User
             userRepository.save(currentUser);
 
-            ///////////////////////////
+            /////////////////////////// Email ekleme kısı düzenle sıkıntı var burda
+
             AuthenticationToken authToken = new AuthenticationToken(currentUser);
             comfirmationTokenRepository.save(authToken);
 
@@ -76,11 +77,6 @@ public class UserService {
             return ResponseEntity.ok("Verify email by the link sent on your email address");
 
 
-            // generate token for user
-
-
-            // success in creating
-            //return new SignUpResponseDto("success", "user created successfully");
 
     }
 

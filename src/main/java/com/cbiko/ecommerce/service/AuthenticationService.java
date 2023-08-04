@@ -16,7 +16,7 @@ import java.util.Objects;
 public class AuthenticationService {
 
     @Autowired
-    TokenRepository repository;
+    private TokenRepository repository;
 
     // save the confirmation token
     public void saveConfirmationToken(AuthenticationToken authenticationToken) {
@@ -28,7 +28,7 @@ public class AuthenticationService {
         return repository.findTokenByUser(user);
     }
 
-    // get Uer from the token
+    // get User from the token
     public User getUser(String token) {
         AuthenticationToken authenticationToken = repository.findTokenByToken(token);
         if (Objects.nonNull(authenticationToken)) {
