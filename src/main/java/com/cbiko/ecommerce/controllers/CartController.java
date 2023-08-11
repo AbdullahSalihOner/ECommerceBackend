@@ -6,6 +6,7 @@ import com.cbiko.ecommerce.dto.cart.CartDto;
 import com.cbiko.ecommerce.exceptions.AuthenticationFailException;
 import com.cbiko.ecommerce.exceptions.CartItemNotExistException;
 import com.cbiko.ecommerce.exceptions.ProductNotExistException;
+import com.cbiko.ecommerce.model.Cart;
 import com.cbiko.ecommerce.model.Product;
 import com.cbiko.ecommerce.model.User;
 import com.cbiko.ecommerce.service.AuthenticationService;
@@ -73,6 +74,25 @@ public class CartController {
         // method to be completed
         cartService.deleteCartItem(cartItemId, user);
         return new ResponseEntity<ApiResponse>(new ApiResponse(true, "Item has been removed"), HttpStatus.OK);
+    }
+
+    @PutMapping("/update/{cartId}")
+    public ResponseEntity<String> updateCartItem(@PathVariable("cartId") int cartItemId,
+                                                 @RequestBody AddToCartDto addToCartDto,
+                                                 @RequestParam("token") String token) throws AuthenticationFailException, CartItemNotExistException  {
+        try {
+            authenticationService.authenticate(token);
+            User user = authenticationService.getUser(token);
+
+            // method to be completed
+            cartService.updateCart(cartItemId, addToCartDto, user);
+
+            return ResponseEntity.ok("Cart item updated successfully");
+        } catch (AuthenticationFailException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred");
+        }
     }
 
 }

@@ -2,25 +2,24 @@ package com.cbiko.ecommerce.controllers;
 
 import com.cbiko.ecommerce.common.ApiResponse;
 import com.cbiko.ecommerce.dto.product.ProductDto;
+import com.cbiko.ecommerce.exceptions.ProductNotExistException;
 import com.cbiko.ecommerce.model.Category;
+import com.cbiko.ecommerce.model.Product;
 import com.cbiko.ecommerce.service.CategoryService;
 import com.cbiko.ecommerce.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/product")
+//@CrossOrigin(origins = "http://localhost:3000")
 public class ProductController {
 
     @Autowired
@@ -45,6 +44,31 @@ public class ProductController {
     public ResponseEntity<List<ProductDto>> getProducts() {
         List<ProductDto> productDtos = productService.listProducts();
         return new ResponseEntity<>(productDtos, HttpStatus.OK);
+    }
+
+    @GetMapping("/getById/{productId}")
+    public ResponseEntity<Product> getProductById(@PathVariable Integer productId) throws Exception{
+        Product product = productService.getProductById(productId);
+
+        if (product != null) {
+            return new ResponseEntity<>(product, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @DeleteMapping("/delete/{productId}")
+    public ResponseEntity<ApiResponse> deleteProduct(@PathVariable Integer productId) throws ProductNotExistException {
+
+        if (Objects.nonNull(productService.getProductById(productId))) {
+            // If the category exists then update it.
+            productService.deleteProduct(productId);
+            return new ResponseEntity<>(new ApiResponse(true, "deleted the product"), HttpStatus.OK);
+        }
+
+        // If the category doesn't exist then return a response of unsuccessful.
+        return new ResponseEntity<>(new ApiResponse(false, "product id does not exist"), HttpStatus.NOT_FOUND);
+
     }
 
     // update a product

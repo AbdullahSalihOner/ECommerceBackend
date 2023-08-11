@@ -64,4 +64,28 @@ public class WishListController {
         return new ResponseEntity<>(products, HttpStatus.OK);
     }
 
+    @DeleteMapping("delete/{wishListId}")
+    public ResponseEntity<ApiResponse> deleteWishList(@PathVariable Integer wishListId,@RequestParam("token") String token) {
+        // first authenticate if the token is valid
+        try {
+            authenticationService.authenticate(token);
+        } catch (AuthenticationFailException e) {
+            throw new RuntimeException(e);
+        }
+        // then fetch the user linked to the token
+        User user = authenticationService.getUser(token);
+
+        // find the wish list item to remove
+        WishList wishList = wishListService.getWishListByUserAndProductId(user.getId(), wishListId);
+
+        if (wishList != null) {
+            // delete the wish list item
+            wishListService.deleteWishList(wishList.getId());
+            return new ResponseEntity<>(new ApiResponse(true, "Removed from wishlist"), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(new ApiResponse(false, "Item not found in wishlist"), HttpStatus.NOT_FOUND);
+        }
+
+    }
+
 }

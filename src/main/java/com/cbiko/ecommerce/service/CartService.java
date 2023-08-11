@@ -68,4 +68,17 @@ public class CartService {
         cartRepository.deleteById(cartItemId);
         // delete the cart item
     }
+
+    public void updateCart(Integer cartId, AddToCartDto newCart, User user) {
+        Cart cart = cartRepository.findById(cartId).orElse(null);
+
+        if (cart != null) {
+            cart.setQuantity(newCart.getQuantity());
+            cartRepository.save(cart);
+        }
+    }
+
+    public void deleteUserCartItems(User user) {
+        cartRepository.deleteByUser(user);
+    }
 }

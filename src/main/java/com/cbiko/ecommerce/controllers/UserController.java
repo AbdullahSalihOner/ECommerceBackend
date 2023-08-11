@@ -9,10 +9,13 @@ import com.cbiko.ecommerce.dto.user.SignUpResponseDto;
 import com.cbiko.ecommerce.model.User;
 import com.cbiko.ecommerce.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RequestMapping("user")
+import java.util.List;
+
+@RequestMapping("/user")
 @RestController
 public class UserController {
 
@@ -20,8 +23,8 @@ public class UserController {
     UserService userService;
 
     @PostMapping("/signup")
-    public ResponseEntity<?> Signup(@RequestBody User user) throws CustomException {
-        return userService.signUp(user);
+    public SignUpResponseDto Signup(@RequestBody SignupDto signupDto) throws CustomException {
+        return userService.signUp(signupDto);
     }
 
     @RequestMapping(value="/confirm-account", method= {RequestMethod.GET, RequestMethod.POST})
@@ -29,8 +32,58 @@ public class UserController {
         return userService.confirmEmail(confirmationToken);
     }
 
-    @PostMapping("/signIn")
-    public SignInResponseDto Signup(@RequestBody SignInDto signInDto) throws CustomException, AuthenticationFailException {
-        return userService.signIn(signInDto);
+    @PostMapping("/login")
+    public SignInResponseDto SignIn(@RequestBody SignInDto signInDto) {
+
+
+        try {
+            return userService.signIn(signInDto);
+        } catch (CustomException customException) {
+
+            customException.printStackTrace();
+
+            return new SignInResponseDto("error", "Custom exception occurred");
+        } catch (AuthenticationFailException authException) {
+
+            authException.printStackTrace();
+
+            return new SignInResponseDto("error", "Authentication failed");
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+            return new SignInResponseDto("error", "An error occurred");
+        }
+    }
+    @DeleteMapping("/delete/{userId}")
+    public ResponseEntity<?> deleteUserById(@PathVariable Integer userId) {
+        try {
+            userService.deleteUserById(userId);
+            return ResponseEntity.ok("User deleted successfully");
+        } catch (CustomException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/update/{userId}")
+    public ResponseEntity<String> updateUser(@PathVariable Integer userId, @RequestBody User updatedUser) {
+        try {
+            ResponseEntity<?> responseEntity = userService.updateUser(userId, updatedUser);
+            return ResponseEntity.ok("User updated successfully");
+        } catch (CustomException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/add")
+    public ResponseEntity<?> addUser(@RequestBody User user) {
+        return userService.addUser(user);
+    }
+
+
+    @GetMapping("/")
+    public ResponseEntity<List<User>> getAllUsers() {
+        List<User> users = userService.getAllUsers();
+        return new ResponseEntity<>(users, HttpStatus.OK);
     }
 }

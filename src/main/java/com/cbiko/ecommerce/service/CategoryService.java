@@ -36,4 +36,18 @@ public class CategoryService {
         category.setImageUrl(newCategory.getImageUrl());
         categoryRepository.save(category);
     }
+
+    public void deleteCategory(Integer categoryID) {
+        Optional<Category> optionalCategory = categoryRepository.findById(categoryID);
+
+        if (optionalCategory.isPresent()) {
+            Category category = optionalCategory.get();
+            categoryRepository.delete(category);
+        } else {
+            // Handle case where category with given ID doesn't exist
+            // You can throw an exception, log a message, or take other appropriate actions
+            // For example:
+            throw new IllegalArgumentException("Category with ID " + categoryID + " not found");
+        }
+    }
 }

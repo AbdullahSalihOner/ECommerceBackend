@@ -21,6 +21,8 @@ import org.springframework.stereotype.Service;
 import javax.xml.bind.DatatypeConverter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -40,7 +42,7 @@ public class UserService {
 
     Logger logger = LoggerFactory.getLogger(UserService.class);
 
-    public ResponseEntity<?> signUp(User user)  throws CustomException {
+   /* public ResponseEntity<?> signUp(User user)  throws CustomException {
         // Check to see if the current email address has already been registered.
         if (Objects.nonNull(userRepository.findByEmail(user.getEmail()))) {
             // If the email address has been registered then throw an exception.
@@ -55,7 +57,7 @@ public class UserService {
             logger.error("hashing password failed {}", e.getMessage());
         }
 
-        User currentUser = new User(user.getFirstName(), user.getLastName(), user.getEmail(), encryptedPassword );
+        User currentUser = new User(user.getFirstName(), user.getLastName(), user.getEmail(), encryptedPassword ,user.getRole());
 
             // save the User
             userRepository.save(currentUser);
@@ -78,7 +80,44 @@ public class UserService {
 
 
 
-    }
+    }*/
+   public SignUpResponseDto signUp(SignupDto signupDto) throws CustomException {
+       // Check to see if the current email address has already been registered.
+       if (Objects.nonNull(userRepository.findByEmail(signupDto.getEmail()))) {
+           // If the email address has been registered then throw an exception.
+           throw new CustomException("User already exists");
+       }
+
+       // Check if the email address is in a valid format
+       String emailPattern = "^[A-Za-z0-9+_.-]+@(.+)$";
+       if (!signupDto.getEmail().matches(emailPattern)) {
+           throw new CustomException("Invalid email format");
+       }
+
+       // first encrypt the password
+       String encryptedPassword = signupDto.getPassword();
+       try {
+           encryptedPassword = hashPassword(signupDto.getPassword());
+       } catch (NoSuchAlgorithmException e) {
+           e.printStackTrace();
+           logger.error("hashing password failed {}", e.getMessage());
+       }
+
+       User user = new User(signupDto.getFirstName(), signupDto.getLastName(), signupDto.getEmail(), encryptedPassword);
+       try {
+           // save the User
+           userRepository.save(user);
+           // generate token for user
+           final AuthenticationToken authenticationToken = new AuthenticationToken(user);
+           // save token in database
+           authenticationService.saveConfirmationToken(authenticationToken);
+           // success in creating
+           return new SignUpResponseDto("success", "user created successfully");
+       } catch (Exception e) {
+           // handle signup error
+           throw new CustomException(e.getMessage());
+       }
+   }
 
     String hashPassword(String password) throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("MD5");
@@ -92,6 +131,7 @@ public class UserService {
     public SignInResponseDto signIn(SignInDto signInDto) throws AuthenticationFailException, CustomException {
         // first find User by email
         User user = userRepository.findByEmail(signInDto.getEmail());
+
         if(!Objects.nonNull(user)){
             throw new AuthenticationFailException("user not present");
         }
@@ -120,17 +160,62 @@ public class UserService {
 
     public ResponseEntity<?> confirmEmail(String confirmationToken) {
         AuthenticationToken token = comfirmationTokenRepository.findTokenByToken(confirmationToken);
-
+        User user = userRepository.findByEmail(token.getUser().getEmail());
         if(token != null)
         {
-            User user = userRepository.findByEmail(token.getUser().getEmail());
+
             userRepository.save(user);
             return ResponseEntity.ok("Email verified successfully!");
         }
+        userRepository.delete(user);
+        comfirmationTokenRepository.delete(token);
         return ResponseEntity.badRequest().body("Error: Couldn't verify email");
+
     }
 
 
+    public ResponseEntity<?> deleteUserById(Integer userId) throws CustomException {
+        // Check if the user exists in the repository
+        User existingUser = userRepository.findById(userId).orElse(null);
+        AuthenticationToken token = comfirmationTokenRepository.findTokenByUser(existingUser);
+        if (existingUser == null) {
+            throw new CustomException("User not found");
+        }
+
+        // Delete the user
+        comfirmationTokenRepository.delete(token);
+        userRepository.delete(existingUser);
+
+        return ResponseEntity.ok("User deleted successfully");
+    }
+
+    public ResponseEntity<?> updateUser(Integer userId, User updatedUser) throws CustomException {
+        // Check if the user exists in the repository
+        User existingUser = userRepository.findById(userId).orElse(null);
+        if (existingUser == null) {
+            throw new CustomException("User not found");
+        }
+
+        // Update the user's information with the new data
+        existingUser.setFirstName(updatedUser.getFirstName());
+        existingUser.setLastName(updatedUser.getLastName());
+        existingUser.setEmail(updatedUser.getEmail());
+        // ... diğer alanları da güncelleyebilirsiniz
+
+        // Save the updated user
+        userRepository.save(existingUser);
+
+        return ResponseEntity.ok("User updated successfully");
+    }
+
+    public ResponseEntity<?> addUser(User user){
+        userRepository.save(user);
+        return ResponseEntity.ok("User added successfully");
+    }
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
 
 
 

@@ -6,6 +6,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.Email;
 
 @Entity
 @Table(name = "users")
@@ -17,14 +18,33 @@ public class User {
     @Column(name = "first_name")
     private String firstName;
 
+    public User(String firstName, String lastName, String email, String password) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.password = password;
+    }
+
     @Column(name = "last_name")
     private String lastName;
 
+    @Email
     @Column(name = "email")
     private String email;
 
     @Column(name = "password")
     private String password;
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    @Column(name = "role")
+    private String role;
 
     public Integer getId() {
         return id;
@@ -67,14 +87,15 @@ public class User {
         this.password = password;
     }
 
-    public User(String firstName, String lastName, String email, String password) {
+    public User() {
+    }
+
+    public User( String firstName, String lastName, String email, String password, String role) {
+
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.password = password;
+        this.role = "member";
     }
-
-    public User() {
-    }
-
 }
