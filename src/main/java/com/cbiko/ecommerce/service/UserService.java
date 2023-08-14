@@ -24,6 +24,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -147,14 +148,9 @@ public class UserService {
             throw new CustomException(e.getMessage());
         }
 
-        AuthenticationToken token = authenticationService.getToken(user);
 
-        if(!Objects.nonNull(token)) {
-            // token not present
-            throw new CustomException(MessageStrings.AUTH_TOKEN_NOT_PRESENT);
-        }
 
-        return new SignInResponseDto ("success", token.getToken());
+        return new SignInResponseDto ("success", user.getId());
     }
 
 
@@ -177,13 +173,11 @@ public class UserService {
     public ResponseEntity<?> deleteUserById(Integer userId) throws CustomException {
         // Check if the user exists in the repository
         User existingUser = userRepository.findById(userId).orElse(null);
-        AuthenticationToken token = comfirmationTokenRepository.findTokenByUser(existingUser);
         if (existingUser == null) {
             throw new CustomException("User not found");
         }
 
         // Delete the user
-        comfirmationTokenRepository.delete(token);
         userRepository.delete(existingUser);
 
         return ResponseEntity.ok("User deleted successfully");
@@ -209,12 +203,24 @@ public class UserService {
     }
 
     public ResponseEntity<?> addUser(User user){
+
         userRepository.save(user);
         return ResponseEntity.ok("User added successfully");
     }
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
+    }
+
+    public User getUserById(int userId) {
+        Optional<User> userOptional = userRepository.findById(userId);
+
+        if (userOptional.isPresent()) {
+            return userOptional.get();
+        } else {
+            // Kullanıcı bulunamadı, isteğe bağlı olarak hata işleme yapabilirsiniz.
+            throw new RuntimeException("Kullanıcı bulunamadı: " + userId);
+        }
     }
 
 

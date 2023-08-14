@@ -7,6 +7,7 @@ import com.cbiko.ecommerce.model.Product;
 import com.cbiko.ecommerce.model.User;
 import com.cbiko.ecommerce.model.WishList;
 import com.cbiko.ecommerce.repository.ProductRepository;
+import com.cbiko.ecommerce.repository.UserRepository;
 import com.cbiko.ecommerce.service.AuthenticationService;
 import com.cbiko.ecommerce.service.WishListService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,19 +26,21 @@ public class WishListController {
     WishListService wishListService;
 
     @Autowired
-    AuthenticationService authenticationService;
-
-    @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    UserRepository userRepository;  // added by me
+
+
     @PostMapping("/add")
-    public ResponseEntity<ApiResponse> addWishList(@RequestBody ProductDto productDto, @RequestParam("token") String token) throws AuthenticationFailException {
-        // first authenticate if the token is valid
-        authenticationService.authenticate(token);
-        // then fetch the user linked to the token
-        User user = authenticationService.getUser(token);
+    public ResponseEntity<ApiResponse> addWishList(@RequestBody ProductDto productDto, @RequestParam("UserId") int UserId) throws AuthenticationFailException {
+
+        User user = userRepository.findUserById(UserId);
 
         Product product = productRepository.getById(productDto.getId());
+
+
+
 
         // save wish list
         WishList wishList = new WishList(user, product);
@@ -46,12 +49,12 @@ public class WishListController {
         return new ResponseEntity(new ApiResponse(true, "Added to wishlist"), HttpStatus.CREATED);
     }
 
-    @GetMapping("/{token}")
-    public ResponseEntity<List<ProductDto>> getWishList(@PathVariable("token") String token) throws AuthenticationFailException {
+    @GetMapping("/{UserId}")
+    public ResponseEntity<List<ProductDto>> getWishList(@RequestParam("UserId") int UserId) throws AuthenticationFailException {
         // first authenticate if the token is valid
-        authenticationService.authenticate(token);
+
         // then fetch the user linked to the token
-        User user = authenticationService.getUser(token);
+        User user = userRepository.findUserById(UserId);
         // first retrieve the wishlist items
         List<WishList> wishLists = wishListService.readWishList(user);
 
@@ -65,15 +68,10 @@ public class WishListController {
     }
 
     @DeleteMapping("delete/{wishListId}")
-    public ResponseEntity<ApiResponse> deleteWishList(@PathVariable Integer wishListId,@RequestParam("token") String token) {
+    public ResponseEntity<ApiResponse> deleteWishList(@PathVariable Integer wishListId,@RequestParam("UserId") int UserId) {
         // first authenticate if the token is valid
-        try {
-            authenticationService.authenticate(token);
-        } catch (AuthenticationFailException e) {
-            throw new RuntimeException(e);
-        }
         // then fetch the user linked to the token
-        User user = authenticationService.getUser(token);
+        User user = userRepository.findUserById(UserId);
 
         // find the wish list item to remove
         WishList wishList = wishListService.getWishListByUserAndProductId(user.getId(), wishListId);

@@ -1,23 +1,17 @@
 package com.cbiko.ecommerce.model;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "wishlist")
 public class WishList {
+
 
 
     @Id
@@ -76,4 +70,13 @@ public class WishList {
     public void setProduct(Product product) {
         this.product = product;
     }
+
+    @Transient
+    public List<Product> getItems() {
+        List<Product> items = new ArrayList<>();
+        items.add(product); // Sadece tek bir ürün eklendiğini varsayalım
+        return items;
+    }
+
+
 }

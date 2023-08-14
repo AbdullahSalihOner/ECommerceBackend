@@ -1,6 +1,7 @@
 package com.cbiko.ecommerce.service;
 
 import com.cbiko.ecommerce.exceptions.WishListNotFoundException;
+import com.cbiko.ecommerce.model.Product;
 import com.cbiko.ecommerce.model.User;
 import com.cbiko.ecommerce.model.WishList;
 import com.cbiko.ecommerce.repository.WishListRepository;
@@ -17,6 +18,7 @@ public class WishListService {
     private WishListRepository wishListRepository;
 
     public void createWishList(WishList wishList){
+
         wishListRepository.save(wishList);
     }
 

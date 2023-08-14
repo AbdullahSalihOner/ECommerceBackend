@@ -8,6 +8,7 @@ import com.cbiko.ecommerce.exceptions.AuthenticationFailException;
 import com.cbiko.ecommerce.exceptions.OrderNotFoundException;
 import com.cbiko.ecommerce.model.Order;
 import com.cbiko.ecommerce.model.User;
+import com.cbiko.ecommerce.repository.UserRepository;
 import com.cbiko.ecommerce.service.AuthenticationService;
 import com.cbiko.ecommerce.service.OrderService;
 import com.stripe.exception.StripeException;
@@ -25,9 +26,8 @@ import java.util.List;
 public class OrderController {
     @Autowired
     private OrderService orderService;
-
     @Autowired
-    private AuthenticationService authenticationService;
+    UserRepository userRepository;  // added by me
 
 
     // stripe create session API
@@ -42,12 +42,12 @@ public class OrderController {
 
     // place order after checkout
     @PostMapping("/add")
-    public ResponseEntity<ApiResponse> placeOrder(@RequestParam("token") String token, @RequestParam("sessionId") String sessionId)
+    public ResponseEntity<ApiResponse> placeOrder(@RequestParam("UserId") int UserId, @RequestParam("sessionId") String sessionId)
             throws AuthenticationFailException {
         // validate token
-        authenticationService.authenticate(token);
+
         // retrieve user
-        User user = authenticationService.getUser(token);
+        User user = userRepository.findUserById(UserId);;
         // place the order
         orderService.placeOrder(user, sessionId);
         return new ResponseEntity<>(new ApiResponse(true, "Order has been placed"), HttpStatus.CREATED);
@@ -55,11 +55,11 @@ public class OrderController {
 
     // get all orders
     @GetMapping("/")
-    public ResponseEntity<List<Order>> getAllOrders(@RequestParam("token") String token) throws AuthenticationFailException {
+    public ResponseEntity<List<Order>> getAllOrders(@RequestParam("UserId") int UserId) throws AuthenticationFailException {
         // validate token
-        authenticationService.authenticate(token);
+
         // retrieve user
-        User user = authenticationService.getUser(token);
+        User user = userRepository.findUserById(UserId);
         // get orders
         List<Order> orderDtoList = orderService.listOrders(user);
 
@@ -68,17 +68,17 @@ public class OrderController {
 
     // get orderitems for an order
     @GetMapping("getById/{id}")
-    public ResponseEntity<Object> getOrderById(@PathVariable("id") Integer id, @RequestParam("token") String token)
+    public ResponseEntity<Object> getOrderById(@PathVariable("id") Integer id, @RequestParam("UserId") int UserId)
             throws AuthenticationFailException, OrderNotFoundException {
         // 1. validate token
 
         // validate token
-        authenticationService.authenticate(token);
+
 
         // 2. find user
 
         // retrieve user
-        User user = authenticationService.getUser(token);
+        User user = userRepository.findUserById(UserId);
 
 
         // 3. call getOrder method of order service an pass orderId and user

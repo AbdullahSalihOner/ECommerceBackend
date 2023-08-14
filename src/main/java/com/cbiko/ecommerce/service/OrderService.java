@@ -102,7 +102,6 @@ public class OrderService {
         // create the order and save it
         Order newOrder = new Order();
         newOrder.setCreatedDate(new Date());
-        newOrder.setSessionId(sessionId);
         newOrder.setUser(user);
         newOrder.setTotalPrice(cartDto.getTotalCost());
         orderRepository.save(newOrder);
