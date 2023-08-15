@@ -24,6 +24,7 @@ public class Order {
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY)
     private List<OrderItem> orderItems;
 
+
     @ManyToOne()
     @JsonIgnore
     @JoinColumn(name = "user_id", referencedColumnName = "id")

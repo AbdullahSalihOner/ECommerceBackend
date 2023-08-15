@@ -21,8 +21,15 @@ public class CartService {
     CartRepository cartRepository;
 
     public void addToCart(AddToCartDto addToCartDto, Product product, User user) {
-        Cart cart = new Cart(product, addToCartDto.getQuantity(), user);
-        cartRepository.save(cart);
+        Cart existingCart = cartRepository.findByProductAndUser(product, user);
+
+        if (existingCart != null) {
+            existingCart.setQuantity(existingCart.getQuantity() + addToCartDto.getQuantity());
+            cartRepository.save(existingCart);
+        } else {
+            Cart cart = new Cart(product, addToCartDto.getQuantity(), user);
+            cartRepository.save(cart);
+        }
     }
 
     public CartDto listCartItems(User user) {

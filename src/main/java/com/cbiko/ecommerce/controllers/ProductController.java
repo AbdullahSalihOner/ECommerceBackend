@@ -2,6 +2,7 @@ package com.cbiko.ecommerce.controllers;
 
 import com.cbiko.ecommerce.common.ApiResponse;
 import com.cbiko.ecommerce.dto.product.ProductDto;
+import com.cbiko.ecommerce.exceptions.CategoryNotFoundException;
 import com.cbiko.ecommerce.exceptions.ProductNotExistException;
 import com.cbiko.ecommerce.model.Category;
 import com.cbiko.ecommerce.model.Product;
@@ -82,5 +83,16 @@ public class ProductController {
         Category category = optionalCategory.get();
         productService.updateProduct(productID, productDto, category);
         return new ResponseEntity<>(new ApiResponse(true, "Product has been updated"), HttpStatus.OK);
+    }
+
+
+    @GetMapping("/category/{categoryId}")
+    public ResponseEntity<List<Product>> getProductsByCategory(@PathVariable Integer categoryId) {
+        try {
+            List<Product> products = productService.getProductsByCategory(categoryId);
+            return ResponseEntity.ok(products);
+        } catch (CategoryNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 }

@@ -2,177 +2,92 @@ package com.cbiko.ecommerce.service;
 
 import com.cbiko.ecommerce.dto.cart.CartDto;
 import com.cbiko.ecommerce.dto.cart.CartItemDto;
-import com.cbiko.ecommerce.dto.checkout.CheckoutItemDto;
-import com.cbiko.ecommerce.exceptions.OrderNotFoundException;
-import com.cbiko.ecommerce.model.Order;
-import com.cbiko.ecommerce.model.OrderItem;
-import com.cbiko.ecommerce.model.User;
+import com.cbiko.ecommerce.dto.order.UserOrderInfo;
+import com.cbiko.ecommerce.exceptions.ProductNotExistException;
+import com.cbiko.ecommerce.model.*;
+import com.cbiko.ecommerce.repository.CartRepository;
 import com.cbiko.ecommerce.repository.OrderItemsRepository;
 import com.cbiko.ecommerce.repository.OrderRepository;
-import com.stripe.Stripe;
-import com.stripe.exception.StripeException;
-import com.stripe.model.checkout.Session;
-import com.stripe.param.checkout.SessionCreateParams;
+import com.cbiko.ecommerce.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
-@Service
+
 @Transactional
+@Service
 public class OrderService {
 
+    @Autowired
+    private OrderRepository orderRepository;
 
     @Autowired
-    private CartService cartService;
-
-    @Autowired
-    OrderRepository orderRepository;
+    UserRepository userRepository;
 
     @Autowired
     OrderItemsRepository orderItemsRepository;
 
-   @Value("${BASE_URL}")
-    private String baseURL;
+    @Autowired
+    CartService cartService;
 
-    @Value("${STRIPE_SECRET_KEY}")
-    private String apiKey;
+    @Autowired
+    private ProductService productService; // ProductService'e göre sipariş ürünleri kontrolü yapılabilir
 
-    // create total price
-    SessionCreateParams.LineItem.PriceData createPriceData(CheckoutItemDto checkoutItemDto) {
-        return SessionCreateParams.LineItem.PriceData.builder()
-                .setCurrency("usd")
-                .setUnitAmount( ((long) checkoutItemDto.getPrice()) * 100)
-                .setProductData(
-                        SessionCreateParams.LineItem.PriceData.ProductData.builder()
-                                .setName(checkoutItemDto.getProductName())
-                                .build())
-                .build();
-    }
-
-    // build each product in the stripe checkout page
-    SessionCreateParams.LineItem createSessionLineItem(CheckoutItemDto checkoutItemDto) {
-        return SessionCreateParams.LineItem.builder()
-                // set price for each product
-                .setPriceData(createPriceData(checkoutItemDto))
-                // set quantity for each product
-                .setQuantity(Long.parseLong(String.valueOf(checkoutItemDto.getQuantity())))
-                .build();
-    }
-
-    // create session from list of checkout items
-    public Session createSession(List<CheckoutItemDto> checkoutItemDtoList) throws StripeException {
-
-        // supply success and failure url for stripe
-        String successURL = baseURL + "payment/success";
-        String failedURL = baseURL + "payment/failed";
-
-        // set the private key
-        Stripe.apiKey = apiKey;
-
-        List<SessionCreateParams.LineItem> sessionItemsList = new ArrayList<>();
-
-        // for each product compute SessionCreateParams.LineItem
-        for (CheckoutItemDto checkoutItemDto : checkoutItemDtoList) {
-            sessionItemsList.add(createSessionLineItem(checkoutItemDto));
+    @Autowired
+    CartRepository cartRepository;
+    @Transactional
+    public void createOrderFromCart(Integer userId) throws ProductNotExistException {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            throw new IllegalArgumentException("Geçersiz kullanıcı ID");
         }
 
-        // build the session param
-        SessionCreateParams params = SessionCreateParams.builder()
-                .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
-                .setMode(SessionCreateParams.Mode.PAYMENT)
-                .setCancelUrl(failedURL)
-                .addAllLineItem(sessionItemsList)
-                .setSuccessUrl(successURL)
-                .build();
-        return Session.create(params);
-    }
-
-    public void placeOrder(User user, String sessionId) {
-        // first let get cart items for the user
         CartDto cartDto = cartService.listCartItems(user);
-
         List<CartItemDto> cartItemDtoList = cartDto.getcartItems();
-
-        // create the order and save it
-        Order newOrder = new Order();
-        newOrder.setCreatedDate(new Date());
-        newOrder.setUser(user);
-        newOrder.setTotalPrice(cartDto.getTotalCost());
-        orderRepository.save(newOrder);
-
-        for (CartItemDto cartItemDto : cartItemDtoList) {
-            // create orderItem and save each one
-            OrderItem orderItem = new OrderItem();
-            orderItem.setCreatedDate(new Date());
-            orderItem.setPrice(cartItemDto.getProduct().getPrice());
-            orderItem.setProduct(cartItemDto.getProduct());
-            orderItem.setQuantity(cartItemDto.getQuantity());
-            orderItem.setOrder(newOrder);
-            // add to order item list
-            orderItemsRepository.save(orderItem);
+        if (cartItemDtoList.isEmpty()) {
+            throw new IllegalArgumentException("Kullanıcının sepeti boş.");
         }
 
-        //
-        cartService.deleteUserCartItems(user);
+        try {
+            // Create order and save it
+            Order newOrder = new Order();
+            newOrder.setUser(user);
+            newOrder.setTotalPrice(cartDto.getTotalCost());
+            newOrder.setCreatedDate(new Date());
+            orderRepository.save(newOrder);
+
+            for (CartItemDto cartItemDto : cartItemDtoList) {
+                OrderItem orderItem = new OrderItem();
+                orderItem.setCreatedDate(new Date());
+                orderItem.setOrder(newOrder);
+                orderItem.setPrice(cartItemDto.getProduct().getPrice());
+                orderItem.setQuantity(cartItemDto.getQuantity());
+                orderItem.setProduct(cartItemDto.getProduct());
+
+                orderItemsRepository.save(orderItem);
+            }
+
+            cartService.deleteUserCartItems(user);
+        } catch (Exception e) {
+            throw new RuntimeException("Sipariş oluşturulurken bir hata oluştu.", e);
+        }
     }
 
+    public List<Order> getUserOrders(User user){
+        try {
+            return orderRepository.findAllByUserId(user.getId());
+        } catch (Exception e) {
+            throw new RuntimeException("Kullanıcının siparişleri getirilirken bir hata oluştu.", e);
+        }
+        
 
-    public List<Order> listOrders(User user) {
-        return orderRepository.findAllByUserOrderByCreatedDateDesc(user);
     }
-
-    // find the order by id, validate if the order belong to user and return
-    public Order getOrder(Integer orderId, User user) throws OrderNotFoundException {
-        // 1. validate the order
-        // if the order not valid throw exception
-
-        Optional<Order> optionalOrder = orderRepository.findById(orderId);
-
-        if (optionalOrder.isEmpty()) {
-            /// throw exception
-            throw  new OrderNotFoundException("order id is not valid");
-        }
-
-        // check if the order belongs to user
-
-        Order order = optionalOrder.get();
-
-        if(order.getUser() != user) {
-            // else throw OrderNotFoundException
-            throw  new OrderNotFoundException("order does not belong to user");
-        }
-
-        // return the order
-
-        return  order;
-    }
-
-    public void deleteOrder(Integer orderId, User user) throws OrderNotFoundException {
-        // 1. Validate the order
-        Optional<Order> optionalOrder = orderRepository.findById(orderId);
-
-        if (optionalOrder.isEmpty()) {
-            throw new OrderNotFoundException("Order ID is not valid");
-        }
-
-        Order order = optionalOrder.get();
-
-        // 2. Check if the order belongs to the user
-        if (!order.getUser().equals(user)) {
-            throw new OrderNotFoundException("Order does not belong to user");
-        }
-
-        // 3. Delete the order
-        orderRepository.delete(order);
-    }
-
 
 
 
 }
+
