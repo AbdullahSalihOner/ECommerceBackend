@@ -11,6 +11,7 @@ public class CartItemDto {
     private @NotNull Integer quantity;
     private @NotNull Product product;
 
+
     public Integer getId() {
         return id;
     }

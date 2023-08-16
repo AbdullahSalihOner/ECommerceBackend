@@ -1,6 +1,7 @@
 package com.cbiko.ecommerce.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Getter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -22,6 +23,19 @@ public class OrderItem {
 
     @Column(name = "created_date")
     private Date createdDate;
+
+    public OrderItem(int quantity, double price, String productName, Order order, Product product) {
+        this.quantity = quantity;
+        this.price = price;
+        this.productName = productName;
+        this.order = order;
+        this.product = product;
+        this.createdDate = new Date();
+    }
+
+    @Getter
+    @Column(name = "product_name")
+    private String productName;
 
     @JsonIgnore
     @ManyToOne
@@ -82,6 +96,14 @@ public class OrderItem {
 
     public void setOrder(Order order) {
         this.order = order;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
+
+    public String getProductName() {
+        return productName;
     }
 }
 

@@ -56,6 +56,15 @@ public class OrderController {
         return new ResponseEntity<>(orderDtoList, HttpStatus.OK);
     }
 
+    @DeleteMapping("/{orderId}")
+    public ResponseEntity<String> deleteOrder(@PathVariable Integer orderId) {
+        try {
+            orderService.deleteOrder(orderId);
+            return ResponseEntity.ok("Sipariş başarıyla silindi.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Sipariş silinirken bir hata oluştu: " + e.getMessage());
+        }
+    }
 
 
 }

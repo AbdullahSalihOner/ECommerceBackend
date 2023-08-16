@@ -16,6 +16,7 @@ import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 
 @Transactional
@@ -67,6 +68,8 @@ public class OrderService {
                 orderItem.setPrice(cartItemDto.getProduct().getPrice());
                 orderItem.setQuantity(cartItemDto.getQuantity());
                 orderItem.setProduct(cartItemDto.getProduct());
+                orderItem.setProductName(cartItemDto.getProduct().getName());
+
 
                 orderItemsRepository.save(orderItem);
             }
@@ -78,6 +81,7 @@ public class OrderService {
     }
 
     public List<Order> getUserOrders(User user){
+
         try {
             return orderRepository.findAllByUserId(user.getId());
         } catch (Exception e) {
@@ -85,6 +89,24 @@ public class OrderService {
         }
         
 
+    }
+
+    @Transactional
+    public void deleteOrder(Integer orderId) {
+        try {
+            Order orderToDelete = orderRepository.findById(orderId).orElse(null);
+            OrderItem orderItemToDelete = orderItemsRepository.findByOrder(orderToDelete);
+
+            if (orderToDelete == null) {
+                throw new IllegalArgumentException("Geçersiz sipariş ID");
+            }
+
+            orderItemsRepository.delete(orderItemToDelete);
+            orderRepository.delete(orderToDelete);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Sipariş silinirken bir hata oluştu.", e);
+        }
     }
 
 
