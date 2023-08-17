@@ -173,11 +173,13 @@ public class UserService {
     public ResponseEntity<?> deleteUserById(Integer userId) throws CustomException {
         // Check if the user exists in the repository
         User existingUser = userRepository.findById(userId).orElse(null);
+        AuthenticationToken token = comfirmationTokenRepository.findTokenByUser(existingUser);
         if (existingUser == null) {
             throw new CustomException("User not found");
         }
 
         // Delete the user
+        comfirmationTokenRepository.delete(token);
         userRepository.delete(existingUser);
 
         return ResponseEntity.ok("User deleted successfully");
