@@ -31,12 +31,13 @@ public class WishListService {
     public void deleteWishList(Integer wishListId) throws WishListNotFoundException {
         Optional<WishList> optionalWishList = wishListRepository.findById(wishListId);
 
-        if (optionalWishList.isEmpty()) {
+        if (optionalWishList.isPresent()) {
+            WishList wishList = optionalWishList.get();
+            wishListRepository.delete(wishList);
+        } else {
             throw new WishListNotFoundException("WishList not found");
         }
 
-        WishList wishList = optionalWishList.get();
-        wishListRepository.delete(wishList);
     }
 
 
