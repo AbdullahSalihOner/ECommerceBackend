@@ -29,10 +29,24 @@ The layered architecture model enhances maintainability and scalability by separ
 - pom.xml: The Maven configuration file for managing project dependencies, plugins, and additional build configurations.
 
 ## Annotations Used
-@Entity, @Table, @Id, @GeneratedValue, etc., for defining the database entities and their mappings.
-@AllArgsConstructor, @NoArgsConstructor, @Data, for simplifying data model creation with Lombok.
-@Service, @Repository, @Controller, @RestController, for marking service, repository, controller classes, and RESTful controllers.
-@RequestMapping, @GetMapping, @PostMapping, @Autowired, for request mapping, method-specific request handling, and dependency injection.
+### JPA Annotations
+- @Entity: Marks a class as a JPA entity, meaning it should be mapped to a database table. This annotation indicates that the class's instances will be persisted in the database.
+- @Table: Specifies the table in the database with which the entity is associated. It allows specifying details like the table name, catalog, schema, and unique constraints.
+- @Id: Designates the primary key of an entity. Each JPA entity must have at least one field annotated with @Id to define the entity's unique identifier.
+- @GeneratedValue: Specifies the strategy for generating primary key values. It supports auto-increment, sequence, table, etc., strategies for generating primary keys.
+### Lombok Annotations
+- @AllArgsConstructor: A Lombok annotation that generates a constructor with one parameter for each field in the class. This simplifies the instantiation of objects.
+- @NoArgsConstructor: Generates a no-argument constructor for the class, enhancing the ease of instantiation, especially for frameworks that require an empty constructor.
+- @Data: A convenient shortcut that bundles the features of @ToString, @EqualsAndHashCode, @Getter, @Setter, and @RequiredArgsConstructor annotations in one. It is used to automatically generate boilerplate code like getters, setters, equals, hashCode, and toString methods.
+### Spring Framework Annotations
+- @Service: Indicates that a class is a service component in the Spring framework. It is used to mark the class as a service provider, making it eligible for business logic and service-layer functionalities.
+- @Repository: Marks a class as a repository, which acts as a mechanism for encapsulating storage, retrieval, and search behavior. It abstracts access to the data layer.
+- @Controller: Indicates that a class serves as a controller in a Spring MVC application. It is a specialization of @Component and is used to mark a class as a web request handler.
+- @RestController: A convenience annotation that combines @Controller and @ResponseBody. It indicates that the class is a controller and every method returns a domain object instead of a view. It simplifies the creation of RESTful web services.
+- @RequestMapping: Used for mapping web requests onto specific handler classes or handler methods. It can specify the HTTP method to listen for and the request URL among other parameters.
+- @GetMapping: A composed annotation that acts as a shortcut for @RequestMapping(method = RequestMethod.GET). It maps HTTP GET requests onto specific handler methods.
+- @PostMapping: Similar to @GetMapping, but for HTTP POST requests. It is a composed annotation that acts as a shortcut for @RequestMapping(method = RequestMethod.POST).
+- @Autowired: Enables automatic dependency injection. It allows Spring to resolve and inject collaborating beans into a bean. It can be applied to fields, setter methods, and constructors.
 
 ## ORM, JPA, and Hibernate
 - ORM: A programming technique that maps object-oriented domain models to relational databases, serving as a bridge and standardizing database interactions.
