@@ -56,6 +56,13 @@ The layered architecture model enhances maintainability and scalability by separ
 - JPA: The Java standard for ORM, facilitating the management of relational data in Java applications.
 - Hibernate: A robust JPA implementation that simplifies data persistence and retrieval in Java, making database interactions more efficient.
 
+<img src="https://github.com/AbdullahSalihOner/ECommerceBackend/blob/master/ProjectImages/Resim2.png" style = "width:80%"></img>
+<img src="https://github.com/AbdullahSalihOner/ECommerceBackend/blob/master/ProjectImages/Resim3.png" style = "width:80%"></img>
+<img src="https://github.com/AbdullahSalihOner/ECommerceBackend/blob/master/ProjectImages/Resim4.png" style = "width:80%"></img>
+
+
+
+
 ## Getting Started
 ### To set up and run the project:
 
