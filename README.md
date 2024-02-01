@@ -1,4 +1,4 @@
-# ECommerceBackendE-Commerce Backend System
+# E-Commerce Backend
 This project is an e-commerce backend system designed with a layered architecture approach, using Java, ORM (Object-Relational Mapping), JPA (Java Persistence API), and Hibernate. The system is structured to manage and organize complex software projects by dividing the application into distinct layers, each responsible for specific aspects of the application functionality.
 
 ## Layered Architecture
