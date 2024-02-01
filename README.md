@@ -61,3 +61,12 @@ The layered architecture model enhances maintainability and scalability by separ
 - Configure the application.properties file with your database and other environment settings.
 - Run mvn clean install to build the project and install dependencies.
 - Start the application through your IDE or command line.
+
+
+<h1>Ayrıntılı Proje Raporu</h1>
+
+    <p>Proje raporunun Türkçe detayları burada yer alacaktır.</p>
+     <p>Details of the project report will be displayed here.</p>
+  
+    <a href="rapor.pdf" download="Proje_Raporu.pdf">
+        <button>Proje Raporu</button>
