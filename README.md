@@ -10,25 +10,25 @@ The layered architecture model enhances maintainability and scalability by separ
 
 - Data Access (Repository) Layer: Communicates with databases or other data sources, managing database transactions, transferring data to the Business layer, and handling errors.
 
-Additional Components
-Configuration Layer: Contains various configuration settings such as database connections, security settings, and logging. This layer might also include the setup for tools like Swagger for easier endpoint management.
+## Additional Components
+- Configuration Layer: Contains various configuration settings such as database connections, security settings, and logging. This layer might also include the setup for tools like Swagger for easier endpoint management.
 
-DTO (Data Transfer Object) Layer: Used for transferring and presenting data objects, especially in formats not aligned with database tables like JSON or XML, facilitating client-server data exchange.
+- DTO (Data Transfer Object) Layer: Used for transferring and presenting data objects, especially in formats not aligned with database tables like JSON or XML, facilitating client-server data exchange.
 
-Exceptions Layer: Includes custom exception classes managed by the application for handling error scenarios, improving error control across layers.
+- Exceptions Layer: Includes custom exception classes managed by the application for handling error scenarios, improving error control across layers.
 
-Model Layer: Contains the application's business logic and data model, including database operations, data validation, and business rules.
+- Model Layer: Contains the application's business logic and data model, including database operations, data validation, and business rules.
 
-Repository Layer: Deals with database operations like data insertion, retrieval, updates, and deletions.
+- Repository Layer: Deals with database operations like data insertion, retrieval, updates, and deletions.
 
-Service Layer: The core layer containing business logic. It implements business rules, performs data access operations, and executes various functionalities. This layer is crucial for adding functionality to the project, with its services being called by the API layer.
+- Service Layer: The core layer containing business logic. It implements business rules, performs data access operations, and executes various functionalities. This layer is crucial for adding functionality to the project, with its services being called by the API layer.
 
-Configuration and Management Files
-application.properties: A configuration file used in Spring Boot applications for defining application settings.
+## Configuration and Management Files
+- application.properties: A configuration file used in Spring Boot applications for defining application settings.
 
-pom.xml: The Maven configuration file for managing project dependencies, plugins, and additional build configurations.
+- pom.xml: The Maven configuration file for managing project dependencies, plugins, and additional build configurations.
 
-Annotations Used
+## Annotations Used
 @Entity, @Table, @Id, @GeneratedValue, etc., for defining the database entities and their mappings.
 @AllArgsConstructor, @NoArgsConstructor, @Data, for simplifying data model creation with Lombok.
 @Service, @Repository, @Controller, @RestController, for marking service, repository, controller classes, and RESTful controllers.
