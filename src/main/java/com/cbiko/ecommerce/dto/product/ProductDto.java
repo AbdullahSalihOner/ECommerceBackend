@@ -5,7 +5,6 @@ import com.cbiko.ecommerce.model.Product;
 import javax.validation.constraints.NotNull;
 
 public class ProductDto {
-
     private Integer id;
     private @NotNull String name;
     private @NotNull String imageURL;

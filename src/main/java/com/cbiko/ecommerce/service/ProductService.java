@@ -31,7 +31,6 @@ public class ProductService {
         }
         return productDtos;
     }
-
     public static Product getProductFromDto(ProductDto productDto, Category category) {
         Product product = new Product();
         product.setCategory(category);

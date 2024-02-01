@@ -21,15 +21,11 @@ import java.util.Optional;
 @RestController
 @CrossOrigin
 @RequestMapping("/product")
-//@CrossOrigin(origins = "http://localhost:3000")
 public class ProductController {
-
     @Autowired
     ProductService productService;
     @Autowired
     CategoryService categoryService;
-
-
     @PostMapping("/add")
     public ResponseEntity<ApiResponse> addProduct(@RequestBody ProductDto productDto) {
         Optional<Category> optionalCategory = categoryService.readCategory(productDto.getCategoryId());
@@ -40,7 +36,6 @@ public class ProductController {
         productService.addProduct(productDto, category);
         return new ResponseEntity<>(new ApiResponse(true, "Product has been added"), HttpStatus.CREATED);
     }
-
     // list all the products
     @GetMapping("/")
     public ResponseEntity<List<ProductDto>> getProducts() {

@@ -39,7 +39,6 @@ public class Product {
     @JoinColumn(name = "category_id", nullable = false)
     Category category;
 
-
     public Product(String name, String imageURL, double price, String description, Category category) {
         super();
         this.name = name;
