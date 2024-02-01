@@ -33,15 +33,17 @@ The layered architecture model enhances maintainability and scalability by separ
 @AllArgsConstructor, @NoArgsConstructor, @Data, for simplifying data model creation with Lombok.
 @Service, @Repository, @Controller, @RestController, for marking service, repository, controller classes, and RESTful controllers.
 @RequestMapping, @GetMapping, @PostMapping, @Autowired, for request mapping, method-specific request handling, and dependency injection.
-ORM, JPA, and Hibernate
-ORM: A programming technique that maps object-oriented domain models to relational databases, serving as a bridge and standardizing database interactions.
-JPA: The Java standard for ORM, facilitating the management of relational data in Java applications.
-Hibernate: A robust JPA implementation that simplifies data persistence and retrieval in Java, making database interactions more efficient.
-Getting Started
-To set up and run the project:
 
-Clone the repository.
-Ensure Java and Maven are installed on your machine.
-Configure the application.properties file with your database and other environment settings.
-Run mvn clean install to build the project and install dependencies.
-Start the application through your IDE or command line.
+## ORM, JPA, and Hibernate
+- ORM: A programming technique that maps object-oriented domain models to relational databases, serving as a bridge and standardizing database interactions.
+- JPA: The Java standard for ORM, facilitating the management of relational data in Java applications.
+- Hibernate: A robust JPA implementation that simplifies data persistence and retrieval in Java, making database interactions more efficient.
+
+## Getting Started
+### To set up and run the project:
+
+- Clone the repository.
+- Ensure Java and Maven are installed on your machine.
+- Configure the application.properties file with your database and other environment settings.
+- Run mvn clean install to build the project and install dependencies.
+- Start the application through your IDE or command line.
