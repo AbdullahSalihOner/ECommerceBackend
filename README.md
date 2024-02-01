@@ -2,7 +2,7 @@
 This project is an e-commerce backend system designed with a layered architecture approach, using Java, ORM (Object-Relational Mapping), JPA (Java Persistence API), and Hibernate. The system is structured to manage and organize complex software projects by dividing the application into distinct layers, each responsible for specific aspects of the application functionality.
 
 <h3>E-commerce Swagger API<h3>
-<img src="https://github.com/AbdullahSalihOner/ECommerceBackend/blob/master/ProjectImages/Resim1.png" style = "width:33%"></img>
+<img src="https://github.com/AbdullahSalihOner/ECommerceBackend/blob/master/ProjectImages/Resim1.png" style = "width:80%"></img>
 
 ## Layered Architecture
 The layered architecture model enhances maintainability and scalability by separating concerns into the following layers:
